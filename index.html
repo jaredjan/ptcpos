@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<!-- deployment-version: close-shift-receipt-archive-v2 -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="passthecrumb POS" />
+  <meta name="theme-color" content="#F7F1EA" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
+  <title>passthecrumb POS</title>
+
+  <style>
+    :root {
+      --bg: #F7F1EA;
+      --bg-2: #FFF8F2;
+      --bg-3: #EEDCCF;
+      --card: #FFF9F4;
+      --card-2: #FFFDFC;
+      --ink: #2F241F;
+      --muted: #7B675D;
+      --line: #E9D8C8;
+      --accent: #A35C3A;
+      --accent-dark: #7A4128;
+      --accent-soft: #C97A72;
+      --accent-pale: #F3E6DA;
+      --good: #6C8A68;
+      --bad: #B85C53;
+      --shadow: 0 18px 45px rgba(77, 52, 39, 0.12);
+      --shadow-soft: 0 10px 24px rgba(77, 52, 39, 0.08);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(255, 255, 255, 0.95) 0 11rem, transparent 22rem),
+        radial-gradient(circle at 88% 3%, rgba(201, 122, 114, 0.22) 0 10rem, transparent 24rem),
+        radial-gradient(circle at 94% 92%, rgba(163, 92, 58, 0.14) 0 13rem, transparent 28rem),
+        linear-gradient(135deg, var(--bg-2) 0%, var(--bg) 45%, var(--bg-3) 100%);
+      padding: max(14px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      padding: 12px 15px;
+      background: var(--accent);
+      color: white;
+      font-weight: 850;
+      letter-spacing: -0.01em;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.12s ease, background 0.18s ease, opacity 0.18s ease;
+      touch-action: manipulation;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button.secondary {
+      background: var(--accent-pale);
+      color: var(--ink);
+      box-shadow: none;
+    }
+
+    button.secondary:hover {
+      background: #ead7c7;
+    }
+
+    button.ghost {
+      background: rgba(255, 253, 252, 0.55);
+      color: var(--accent-dark);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    button.ghost:hover {
+      background: var(--card-2);
+    }
+
+    button.good {
+      background: var(--good);
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 252, 0.88);
+      border-radius: var(--radius-sm);
+      color: var(--ink);
+      padding: 12px 13px;
+      outline: none;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset;
+    }
+
+    input,
+    select {
+      height: 50px;
+      line-height: 1.2;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 72px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(163, 92, 58, 0.13);
+    }
+
+    input[readonly] {
+      background: rgba(243, 230, 218, 0.62);
+      color: var(--muted);
+      cursor: default;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    small,
+    .eyebrow {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: lowercase;
+    }
+
+    .shell {
+      max-width: 1460px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: block;
+      margin: 0 auto 18px;
+    }
+
+    .brand-card {
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+      border: 1px solid rgba(233, 216, 200, 0.85);
+      border-radius: var(--radius-xl);
+      background: rgba(255, 249, 244, 0.78);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand-card::after {
+      content: "";
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      right: -86px;
+      top: -88px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201, 122, 114, 0.22), transparent 70%);
+      pointer-events: none;
+    }
+
+    .brand-top {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .crumb-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+      color: white;
+      font-weight: 950;
+      letter-spacing: -0.08em;
+      box-shadow: var(--shadow-soft);
+    }
+
+    h1 {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      font-size: clamp(2.4rem, 6vw, 5.4rem);
+      line-height: 0.88;
+      font-weight: 950;
+      letter-spacing: -0.09em;
+      color: var(--ink);
+    }
+
+    .tagline {
+      position: relative;
+      z-index: 1;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 720;
+      max-width: 760px;
+    }
+
+    .shift-inline {
+      min-width: 300px;
+      max-width: 380px;
+      border: 1px solid rgba(233, 216, 200, 0.9);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 253, 252, 0.74);
+      box-shadow: var(--shadow-soft);
+      padding: 14px 16px;
+      backdrop-filter: blur(12px);
+    }
+
+    .shift-inline strong {
+      display: block;
+      font-size: 1.04rem;
+      margin-top: 5px;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      border: 1px solid rgba(233, 216, 200, 0.9);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 253, 252, 0.72);
+      padding: 15px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(12px);
+    }
+
+    .stat-card span {
+      color: var(--muted);
+      display: block;
+      font-weight: 800;
+      font-size: 0.78rem;
+      text-transform: lowercase;
+      letter-spacing: 0.03em;
+    }
+
+    .stat-card strong {
+      display: block;
+      margin-top: 5px;
+      font-size: clamp(1.1rem, 2vw, 1.55rem);
+      letter-spacing: -0.04em;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(0, 1.22fr) minmax(330px, 0.62fr) minmax(310px, 0.54fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid rgba(233, 216, 200, 0.92);
+      border-radius: var(--radius-xl);
+      background: rgba(255, 249, 244, 0.84);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      padding: 18px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .panel-head h2,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: -0.04em;
+    }
+
+    h2 {
+      font-size: 1.28rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 0 10px;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      white-space: nowrap;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 252, 0.88);
+      color: var(--accent-dark);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 850;
+      box-shadow: none;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .product {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 176px;
+      padding: 15px;
+      border: 1px solid rgba(233, 216, 200, 0.95);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(circle at top right, rgba(201, 122, 114, 0.12), transparent 44%),
+        linear-gradient(180deg, #FFFDFC 0%, #FFF8F2 100%);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .product::before {
+      content: "";
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      right: -34px;
+      bottom: -34px;
+      border-radius: 50%;
+      background: rgba(163, 92, 58, 0.10);
+    }
+
+    .product-top,
+    .product-bottom {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: rgba(243, 230, 218, 0.72);
+      color: var(--accent-dark);
+      font-size: 0.75rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .stock-chip {
+      color: var(--muted);
+      background: rgba(255, 253, 252, 0.76);
+    }
+
+    .product-name {
+      position: relative;
+      min-height: 48px;
+      font-size: 1.06rem;
+      line-height: 1.08;
+      font-weight: 940;
+      letter-spacing: -0.04em;
+    }
+
+    .product-desc {
+      position: relative;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.36;
+      min-height: 38px;
+    }
+
+    .product-bottom {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      margin-top: auto;
+    }
+
+    .price {
+      font-size: 1.42rem;
+      font-weight: 950;
+      letter-spacing: -0.06em;
+      color: var(--accent-dark);
+    }
+
+    .stockbar {
+      position: relative;
+      height: 7px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #f1dfd1;
+      margin-top: 2px;
+    }
+
+    .stockbar > span {
+      display: block;
+      height: 100%;
+      width: var(--stock-width, 0%);
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--good), var(--accent-soft));
+    }
+
+    .cart-panel,
+    .receipt-panel {
+      position: sticky;
+      top: 14px;
+    }
+
+    .cart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 330px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 253, 252, 0.86);
+      box-shadow: 0 8px 18px rgba(77, 52, 39, 0.05);
+    }
+
+    .cart-item strong {
+      display: block;
+      letter-spacing: -0.03em;
+    }
+
+    .cart-item span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 650;
+    }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .qty-controls button {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+      align-items: start;
+    }
+
+    .form-grid label,
+    .form-row label {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .form-row {
+      margin-top: 10px;
+    }
+
+    .summary {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+      padding-top: 13px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-weight: 760;
+    }
+
+    .summary-row strong {
+      color: var(--ink);
+    }
+
+    .summary-row.change-row {
+      margin-top: 2px;
+      padding: 11px 12px;
+      border: 1px solid rgba(163, 92, 58, 0.18);
+      border-radius: var(--radius-md);
+      background: rgba(243, 230, 218, 0.72);
+      color: var(--ink);
+    }
+
+    .summary-row.change-row strong {
+      color: var(--accent-dark);
+      font-size: 1.18rem;
+      letter-spacing: -0.04em;
+    }
+
+    .summary-total {
+      margin-top: 6px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 1.46rem;
+      font-weight: 950;
+      letter-spacing: -0.06em;
+    }
+
+    .checkout-actions,
+    .receipt-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .table-action {
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      box-shadow: none;
+      white-space: nowrap;
+    }
+
+    .shift-note {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 750;
+      line-height: 1.35;
+    }
+
+    .history-block + .history-block {
+      margin-top: 18px;
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 11px;
+      font-weight: 880;
+      color: var(--good);
+    }
+
+    .receipt {
+      margin-top: 12px;
+      min-height: 460px;
+      overflow: hidden;
+      padding: 18px;
+      border: 1px solid rgba(233, 216, 200, 0.95);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, #FFFDFC 0%, #FFF9F4 100%);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(77, 52, 39, 0.06);
+    }
+
+    .receipt-paper {
+      display: grid;
+      gap: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .receipt-brand {
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #cdb7a8;
+    }
+
+    .receipt-brand strong {
+      display: block;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 1.35rem;
+      line-height: 1;
+      letter-spacing: -0.07em;
+      font-weight: 950;
+      color: var(--accent-dark);
+    }
+
+    .receipt-brand span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .receipt-meta,
+    .receipt-lines,
+    .receipt-totals {
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #cdb7a8;
+    }
+
+    .receipt-row,
+    .receipt-item-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .receipt-row span:first-child,
+    .receipt-item-line span:first-child {
+      color: var(--muted);
+    }
+
+    .receipt-item {
+      display: grid;
+      gap: 2px;
+      padding: 4px 0;
+    }
+
+    .receipt-item-name {
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .receipt-total-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding-top: 6px;
+      margin-top: 4px;
+      border-top: 1px solid var(--line);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 1.2rem;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      color: var(--accent-dark);
+    }
+
+    .receipt-footer {
+      text-align: center;
+      color: var(--muted);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 800;
+      font-size: 0.78rem;
+    }
+
+    .receipt-empty {
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 850;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 253, 252, 0.52);
+      padding: 24px;
+    }
+
+    .history-panel {
+      margin-top: 18px;
+      background: rgba(255, 253, 252, 0.52);
+      box-shadow: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      padding: 11px 9px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.73rem;
+      text-transform: lowercase;
+      letter-spacing: 0.04em;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 124px;
+      padding: 24px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-lg);
+      color: var(--muted);
+      text-align: center;
+      font-weight: 850;
+      background: rgba(255, 253, 252, 0.44);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 16px;
+      background: rgba(47, 36, 31, 0.34);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-backdrop.open {
+      display: grid;
+    }
+
+    .modal {
+      width: min(460px, 100%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: 0 28px 70px rgba(47, 36, 31, 0.26);
+      padding: 18px;
+    }
+
+    .modal .fields {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .mobile-bar {
+      display: none;
+      position: sticky;
+      bottom: 12px;
+      z-index: 20;
+      margin-top: 14px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 249, 244, 0.9);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .mobile-bar a {
+      display: block;
+      text-decoration: none;
+      text-align: center;
+      color: white;
+      background: var(--accent);
+      border-radius: 999px;
+      padding: 13px 16px;
+      font-weight: 900;
+    }
+
+    @media (max-width: 1200px) {
+      .app {
+        grid-template-columns: minmax(0, 1fr) minmax(330px, 0.72fr);
+      }
+
+      .receipt-panel {
+        grid-column: 1 / -1;
+        position: static;
+      }
+
+      .receipt {
+        min-height: 260px;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .brand-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .shift-inline {
+        min-width: 0;
+        max-width: none;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-panel,
+      .receipt-panel {
+        position: static;
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mobile-bar {
+        display: block;
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .brand-card,
+      .panel {
+        border-radius: 24px;
+        padding: 15px;
+      }
+
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar,
+      .form-grid,
+      .checkout-actions,
+      .receipt-actions,
+      .modal-actions {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2.75rem;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+
+      .stat-card {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+    <header class="hero">
+      <section class="brand-card">
+        <div class="brand-top">
+          <div class="brand-logo">
+            <div class="crumb-mark">ptc</div>
+            <div>
+              <div class="eyebrow">pop-up point of sale</div>
+              <div style="font-weight:900;color:var(--accent-dark);">cookies · cakes · small-batch drops</div>
+            </div>
+          </div>
+
+          <aside class="shift-inline">
+            <small>today's shift</small>
+            <strong id="todayPill">loading...</strong>
+          </aside>
+        </div>
+
+        <h1>passthecrumb</h1>
+        <p class="tagline">good taste goes around — portable checkout for small-batch dessert drops and pop-up sales.</p>
+      </section>
+    </header>
+
+    <section class="stats" aria-label="sales overview">
+      <div class="stat-card">
+        <span>today's sales</span>
+        <strong id="statSales">₱0.00</strong>
+      </div>
+      <div class="stat-card">
+        <span>transactions</span>
+        <strong id="statOrders">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>items sold</span>
+        <strong id="statItems">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>stock left</span>
+        <strong id="statStock">0</strong>
+      </div>
+    </section>
+
+    <main class="app">
+      <section class="panel" id="productsPanel">
+        <div class="panel-head">
+          <div>
+            <small>product menu</small>
+            <h2>today's crumb drop</h2>
+          </div>
+          <button class="ghost" onclick="showProductModal()">+ add product</button>
+        </div>
+
+        <div class="tabs" id="categoryTabs"></div>
+
+        <div class="toolbar">
+          <input id="searchInput" type="search" placeholder="search cookies, cakes, drops..." oninput="renderProducts()" />
+          <button class="secondary" onclick="clearSearch()">clear</button>
+        </div>
+
+        <div class="product-grid" id="productGrid"></div>
+
+        <section class="panel history-panel">
+          <div class="panel-head">
+            <div>
+              <small>records</small>
+              <h2>sales history</h2>
+            </div>
+            <div class="panel-actions">
+              <button class="ghost" onclick="exportCSV()">export CSV</button>
+              <button class="secondary" onclick="closeShift()">close shift</button>
+            </div>
+          </div>
+          <div id="historyTable"></div>
+        </section>
+      </section>
+
+      <aside class="panel cart-panel" id="cartPanel">
+        <div class="panel-head">
+          <div>
+            <small>checkout</small>
+            <h2>current cart</h2>
+          </div>
+          <button class="ghost" onclick="clearCart()">clear</button>
+        </div>
+
+        <div id="cartList" class="cart-list"></div>
+
+        <div class="form-grid">
+          <label>
+            <small>discount type</small>
+            <select id="discountType" onchange="handleDiscountTypeChange()">
+              <option value="none">No discount</option>
+              <option value="pwd_senior">PWD / Senior Citizen — 20%</option>
+              <option value="custom">Custom discount</option>
+            </select>
+          </label>
+          <label>
+            <small>discount ₱</small>
+            <input id="discountInput" type="number" min="0" value="0" inputmode="decimal" oninput="renderCart()" readonly />
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label>
+            <small>cash received ₱</small>
+            <input id="cashInput" type="number" min="0" value="0" inputmode="decimal" oninput="renderCart()" />
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label>
+            <small>payment method</small>
+            <select id="paymentMethod" onchange="renderCart()">
+              <option>Cash</option>
+              <option>GCash</option>
+              <option>Maya</option>
+              <option>Bank Transfer</option>
+              <option>Complimentary</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label>
+            <small>customer / notes</small>
+            <textarea id="notesInput" rows="2" placeholder="optional e.g., customer name, pickup note, promo"></textarea>
+          </label>
+        </div>
+
+        <div class="summary" id="summaryBox"></div>
+
+        <div class="checkout-actions">
+          <button class="good" onclick="checkout()">checkout</button>
+          <button class="secondary" onclick="copyReceipt()">copy receipt</button>
+        </div>
+
+        <div class="status" id="statusMsg"></div>
+      </aside>
+
+      <aside class="panel receipt-panel" id="receiptPanel">
+        <div class="panel-head">
+          <div>
+            <small>receipt preview</small>
+            <h2>latest receipt</h2>
+          </div>
+        </div>
+
+        <div class="receipt" id="receiptBox">
+          <div class="receipt-empty">No completed sale yet.<br />Your receipt preview will appear here after checkout.</div>
+        </div>
+
+        <div class="receipt-actions">
+          <button class="secondary" onclick="copyReceipt()">copy text</button>
+          <button onclick="exportReceiptPNG()">export PNG</button>
+        </div>
+      </aside>
+    </main>
+
+    <div class="mobile-bar">
+      <a href="#cartPanel" id="mobileCartButton">view cart · ₱0.00</a>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <section class="modal">
+      <div class="panel-head" style="margin-bottom:0;">
+        <div>
+          <small>new menu item</small>
+          <h2 id="modalTitle">add product</h2>
+        </div>
+        <button class="ghost" onclick="hideProductModal()">close</button>
+      </div>
+
+      <div class="fields">
+        <input id="newName" placeholder="product name e.g., mango graham cookie" />
+        <input id="newCategory" placeholder="category e.g., cookies, cakes, boxes" />
+        <input id="newPrice" type="number" min="0" inputmode="decimal" placeholder="price" />
+        <input id="newStock" type="number" min="0" inputmode="numeric" placeholder="stock prepared" />
+        <textarea id="newDescription" placeholder="short description"></textarea>
+        <div class="modal-actions">
+          <button class="secondary" onclick="hideProductModal()">cancel</button>
+          <button onclick="addProduct()">save product</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const peso = new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      minimumFractionDigits: 2
+    });
+
+    const storageKeys = {
+      products: 'ptc_pos_products_v3',
+      cart: 'ptc_pos_cart_v3',
+      sales: 'ptc_pos_sales_v3',
+      archivedSales: 'ptc_archived_receipts_v1',
+      shiftMeta: 'ptc_shift_meta_v1'
+    };
+
+    const startingProducts = [
+      {
+        id: makeId(),
+        name: 'buttercrumb pecan',
+        category: 'cookies',
+        price: 85,
+        stock: 24,
+        startingStock: 24,
+        description: 'buttery pecan cookie with a soft crumb and toasted nutty finish'
+      },
+      {
+        id: makeId(),
+        name: 'carrot cloud slice',
+        category: 'cakes',
+        price: 135,
+        stock: 16,
+        startingStock: 16,
+        description: 'carrot cake with cream cheese frosting and a cozy spiced crumb'
+      }
+    ];
+
+    let products = loadJSON(storageKeys.products, startingProducts);
+    let cart = loadJSON(storageKeys.cart, []);
+    let sales = loadJSON(storageKeys.sales, []);
+    let archivedSales = loadJSON(storageKeys.archivedSales, []);
+    let shiftMeta = loadJSON(storageKeys.shiftMeta, { csvExported: false, lastExportAt: null });
+    let activeCategory = 'all';
+    let lastReceipt = '';
+    let selectedReceiptSale = null;
+
+    function makeId() {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+    }
+
+    function loadJSON(key, fallback) {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function saveAll() {
+      localStorage.setItem(storageKeys.products, JSON.stringify(products));
+      localStorage.setItem(storageKeys.cart, JSON.stringify(cart));
+      localStorage.setItem(storageKeys.sales, JSON.stringify(sales));
+      localStorage.setItem(storageKeys.archivedSales, JSON.stringify(archivedSales));
+      localStorage.setItem(storageKeys.shiftMeta, JSON.stringify(shiftMeta));
+    }
+
+    function init() {
+      updateDate();
+      renderCategories();
+      renderProducts();
+      renderCart();
+      renderHistory();
+      renderReceiptPreview(sales[0]);
+      updateStats();
+      setInterval(updateDate, 60000);
+    }
+
+    function updateDate() {
+      const now = new Date();
+      document.getElementById('todayPill').textContent = now.toLocaleString('en-PH', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function localDateKey(value = new Date()) {
+      const date = value instanceof Date ? value : new Date(value);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function getTodaySales() {
+      const key = localDateKey();
+      return sales.filter(sale => localDateKey(sale.date) === key);
+    }
+
+    function updateStats() {
+      const todaySales = getTodaySales();
+      const total = todaySales.reduce((sum, sale) => sum + sale.total, 0);
+      const items = todaySales.reduce((sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + item.qty, 0), 0);
+      const stock = products.reduce((sum, product) => sum + Number(product.stock || 0), 0);
+
+      document.getElementById('statSales').textContent = peso.format(total);
+      document.getElementById('statOrders').textContent = todaySales.length;
+      document.getElementById('statItems').textContent = items;
+      document.getElementById('statStock').textContent = stock;
+    }
+
+    function renderCategories() {
+      const categories = ['all', ...Array.from(new Set(products.map(product => product.category))).sort()];
+      document.getElementById('categoryTabs').innerHTML = categories.map(category => {
+        const active = category === activeCategory ? 'active' : '';
+        const count = category === 'all' ? products.length : products.filter(product => product.category === category).length;
+        return `<button class="tab ${active}" onclick="setCategory('${escapeAttribute(category)}')">${escapeHTML(category)} · ${count}</button>`;
+      }).join('');
+    }
+
+    function setCategory(category) {
+      activeCategory = category;
+      renderCategories();
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = products.filter(product => {
+        const categoryMatch = activeCategory === 'all' || product.category === activeCategory;
+        const text = `${product.name} ${product.category} ${product.description}`.toLowerCase();
+        return categoryMatch && (!query || text.includes(query));
+      });
+
+      const grid = document.getElementById('productGrid');
+
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="empty">No matching products yet. Try another search or add a new item.</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(product => {
+        const startingStock = Number(product.startingStock || product.stock || 1);
+        const stockPercent = Math.max(0, Math.min(100, (Number(product.stock || 0) / startingStock) * 100));
+        const disabled = Number(product.stock || 0) <= 0;
+
+        return `
+          <article class="product">
+            <div class="product-top">
+              <span class="chip">${escapeHTML(product.category)}</span>
+              <span class="chip stock-chip">${Number(product.stock || 0)} left</span>
+            </div>
+
+            <div class="product-name">${escapeHTML(product.name)}</div>
+            <div class="product-desc">${escapeHTML(product.description || 'small-batch dessert made to share')}</div>
+
+            <div class="stockbar" aria-hidden="true" style="--stock-width:${stockPercent}%"><span></span></div>
+
+            <div class="product-bottom">
+              <div class="price">${peso.format(Number(product.price || 0))}</div>
+              <button ${disabled ? 'disabled' : ''} onclick="addToCart('${product.id}')">${disabled ? 'sold out' : 'add'}</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      renderProducts();
+    }
+
+    function addToCart(productId) {
+      const product = products.find(item => item.id === productId);
+      if (!product || Number(product.stock || 0) <= 0) return;
+
+      const item = cart.find(cartItem => cartItem.id === productId);
+      const currentQty = item ? Number(item.qty || 0) : 0;
+
+      if (currentQty >= Number(product.stock || 0)) {
+        showStatus('Not enough stock prepared.', true);
+        return;
+      }
+
+      if (item) {
+        item.qty += 1;
+      } else {
+        cart.push({
+          id: product.id,
+          name: product.name,
+          price: Number(product.price || 0),
+          qty: 1
+        });
+      }
+
+      saveAll();
+      renderCart();
+      showStatus('Added to cart.');
+    }
+
+    function changeQty(productId, delta) {
+      const product = products.find(item => item.id === productId);
+      const item = cart.find(cartItem => cartItem.id === productId);
+      if (!item) return;
+
+      const nextQty = Number(item.qty || 0) + delta;
+
+      if (nextQty <= 0) {
+        cart = cart.filter(cartItem => cartItem.id !== productId);
+      } else if (!product || nextQty <= Number(product.stock || 0)) {
+        item.qty = nextQty;
+      } else {
+        showStatus('Not enough stock prepared.', true);
+      }
+
+      saveAll();
+      renderCart();
+    }
+
+    function clearCart() {
+      cart = [];
+      document.getElementById('discountType').value = 'none';
+      document.getElementById('discountInput').value = 0;
+      document.getElementById('cashInput').value = 0;
+      document.getElementById('notesInput').value = '';
+      handleDiscountTypeChange();
+      saveAll();
+      renderCart();
+    }
+
+    function cartSubtotal() {
+      return cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
+    }
+
+    function roundMoney(value) {
+      return Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100;
+    }
+
+    function getDiscountDetails(subtotal = cartSubtotal()) {
+      const typeElement = document.getElementById('discountType');
+      const input = document.getElementById('discountInput');
+      const type = typeElement ? typeElement.value : 'none';
+      let amount = 0;
+      let label = 'No discount';
+
+      if (type === 'pwd_senior') {
+        amount = roundMoney(subtotal * 0.20);
+        label = 'PWD / Senior Citizen 20%';
+        if (input) {
+          input.readOnly = true;
+          input.value = amount.toFixed(2);
+        }
+      } else if (type === 'custom') {
+        amount = roundMoney(Number(input && input.value ? input.value : 0));
+        label = 'Custom discount';
+        if (input) input.readOnly = false;
+      } else {
+        amount = 0;
+        label = 'No discount';
+        if (input) {
+          input.readOnly = true;
+          input.value = 0;
+        }
+      }
+
+      amount = Math.min(Math.max(0, amount), subtotal);
+      return { type, label, amount };
+    }
+
+    function handleDiscountTypeChange() {
+      const input = document.getElementById('discountInput');
+      const type = document.getElementById('discountType').value;
+      if (input) {
+        input.readOnly = type !== 'custom';
+        if (type !== 'custom') input.value = 0;
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      const list = document.getElementById('cartList');
+
+      if (!cart.length) {
+        list.innerHTML = '<div class="empty">Your cart is empty. Add cookies, cakes, or drops to begin.</div>';
+      } else {
+        list.innerHTML = cart.map(item => `
+          <div class="cart-item">
+            <div>
+              <strong>${escapeHTML(item.name)}</strong>
+              <span>${peso.format(Number(item.price || 0))} × ${Number(item.qty || 0)} = ${peso.format(Number(item.price || 0) * Number(item.qty || 0))}</span>
+            </div>
+            <div class="qty-controls">
+              <button class="secondary" onclick="changeQty('${item.id}', -1)">−</button>
+              <strong>${Number(item.qty || 0)}</strong>
+              <button onclick="changeQty('${item.id}', 1)">+</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const subtotal = cartSubtotal();
+      const discountDetails = getDiscountDetails(subtotal);
+      const discount = discountDetails.amount;
+      const total = Math.max(0, subtotal - discount);
+      const cash = Number(document.getElementById('cashInput').value || 0);
+      const method = document.getElementById('paymentMethod').value;
+      const change = method === 'Cash' ? Math.max(0, cash - total) : 0;
+      const itemCount = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+
+      document.getElementById('summaryBox').innerHTML = `
+        <div class="summary-row"><span>items</span><strong>${itemCount}</strong></div>
+        <div class="summary-row"><span>subtotal</span><strong>${peso.format(subtotal)}</strong></div>
+        <div class="summary-row"><span>discount · ${escapeHTML(discountDetails.label)}</span><strong>−${peso.format(discount)}</strong></div>
+        <div class="summary-row"><span>payment</span><strong>${escapeHTML(method)}</strong></div>
+        ${method === 'Cash' ? `<div class="summary-row change-row"><span>change to provide</span><strong>${peso.format(change)}</strong></div>` : ''}
+        <div class="summary-row summary-total"><span>total</span><strong>${peso.format(total)}</strong></div>
+      `;
+
+      document.getElementById('mobileCartButton').textContent = `view cart · ${peso.format(total)}`;
+    }
+
+    function checkout() {
+      if (!cart.length) {
+        showStatus('Add items before checkout.', true);
+        return;
+      }
+
+      const subtotal = cartSubtotal();
+      const discountDetails = getDiscountDetails(subtotal);
+      const discount = discountDetails.amount;
+      const total = Math.max(0, subtotal - discount);
+      const method = document.getElementById('paymentMethod').value;
+      const cash = Number(document.getElementById('cashInput').value || 0);
+
+      if (method === 'Cash' && cash < total) {
+        showStatus('Cash received is lower than the total.', true);
+        return;
+      }
+
+      const sale = {
+        id: `PTC-${Date.now()}`,
+        date: new Date().toISOString(),
+        items: cart.map(item => ({ ...item })),
+        subtotal,
+        discount,
+        discountType: discountDetails.label,
+        total,
+        paymentMethod: method,
+        cashReceived: cash,
+        change: method === 'Cash' ? cash - total : 0,
+        notes: document.getElementById('notesInput').value.trim()
+      };
+
+      sale.items.forEach(soldItem => {
+        const product = products.find(item => item.id === soldItem.id);
+        if (product) product.stock = Math.max(0, Number(product.stock || 0) - Number(soldItem.qty || 0));
+      });
+
+      sales.unshift(sale);
+      shiftMeta.csvExported = false;
+      shiftMeta.lastExportAt = null;
+      selectedReceiptSale = sale;
+      lastReceipt = buildReceipt(sale);
+      renderReceiptPreview(sale);
+
+      clearCart();
+      saveAll();
+      renderProducts();
+      renderHistory();
+      updateStats();
+      showStatus('Sale recorded successfully.');
+    }
+
+    function renderReceiptPreview(sale) {
+      const box = document.getElementById('receiptBox');
+
+      if (sale) {
+        selectedReceiptSale = sale;
+        lastReceipt = buildReceipt(sale);
+      }
+
+      if (!sale) {
+        box.innerHTML = '<div class="receipt-empty">No completed sale yet.<br />Your receipt preview will appear here after checkout.</div>';
+        return;
+      }
+
+      const itemRows = sale.items.map(item => `
+        <div class="receipt-item">
+          <div class="receipt-item-name">${escapeHTML(item.name)}</div>
+          <div class="receipt-item-line">
+            <span>${Number(item.qty || 0)} × ${peso.format(Number(item.price || 0))}</span>
+            <strong>${peso.format(Number(item.qty || 0) * Number(item.price || 0))}</strong>
+          </div>
+        </div>
+      `).join('');
+
+      const discountLabel = sale.discountType ? ` · ${escapeHTML(sale.discountType)}` : '';
+      const cashRows = sale.paymentMethod === 'Cash' ? `
+        <div class="receipt-row"><span>cash received</span><strong>${peso.format(sale.cashReceived)}</strong></div>
+        <div class="receipt-row"><span>change</span><strong>${peso.format(sale.change)}</strong></div>
+      ` : '';
+      const notesRow = sale.notes ? `<div class="receipt-row"><span>notes</span><strong>${escapeHTML(sale.notes)}</strong></div>` : '';
+
+      box.innerHTML = `
+        <div class="receipt-paper">
+          <div class="receipt-brand">
+            <strong>passthecrumb</strong>
+            <span>good taste goes around</span>
+          </div>
+
+          <div class="receipt-meta">
+            <div class="receipt-row"><span>receipt</span><strong>${escapeHTML(sale.id)}</strong></div>
+            <div class="receipt-row"><span>date</span><strong>${escapeHTML(new Date(sale.date).toLocaleString('en-PH'))}</strong></div>
+            <div class="receipt-row"><span>type</span><strong>sales receipt</strong></div>
+          </div>
+
+          <div class="receipt-lines">
+            ${itemRows}
+          </div>
+
+          <div class="receipt-totals">
+            <div class="receipt-row"><span>subtotal</span><strong>${peso.format(sale.subtotal)}</strong></div>
+            <div class="receipt-row"><span>discount${discountLabel}</span><strong>−${peso.format(sale.discount)}</strong></div>
+            <div class="receipt-row"><span>payment</span><strong>${escapeHTML(sale.paymentMethod)}</strong></div>
+            ${cashRows}
+            ${notesRow}
+            <div class="receipt-total-row"><span>total</span><strong>${peso.format(sale.total)}</strong></div>
+          </div>
+
+          <div class="receipt-footer">
+            thank you for sharing good taste<br />@passthecrumb
+          </div>
+        </div>
+      `;
+    }
+
+    function buildReceipt(sale) {
+      const lines = [];
+      lines.push('passthecrumb');
+      lines.push('good taste goes around');
+      lines.push('--------------------------------');
+      lines.push(`receipt: ${sale.id}`);
+      lines.push(new Date(sale.date).toLocaleString('en-PH'));
+      lines.push('--------------------------------');
+
+      sale.items.forEach(item => {
+        lines.push(`${item.qty} × ${item.name}`);
+        lines.push(`    ${peso.format(Number(item.price || 0) * Number(item.qty || 0))}`);
+      });
+
+      lines.push('--------------------------------');
+      lines.push(`subtotal: ${peso.format(sale.subtotal)}`);
+      lines.push(`discount: ${peso.format(sale.discount)}${sale.discountType ? ' · ' + sale.discountType : ''}`);
+      lines.push(`total:    ${peso.format(sale.total)}`);
+      lines.push(`payment:  ${sale.paymentMethod}`);
+
+      if (sale.paymentMethod === 'Cash') {
+        lines.push(`cash:     ${peso.format(sale.cashReceived)}`);
+        lines.push(`change:   ${peso.format(sale.change)}`);
+      }
+
+      if (sale.notes) lines.push(`notes: ${sale.notes}`);
+
+      lines.push('--------------------------------');
+      lines.push('thank you for sharing good taste!');
+      return lines.join('\n');
+    }
+
+    async function copyReceipt() {
+      if (!lastReceipt && selectedReceiptSale) lastReceipt = buildReceipt(selectedReceiptSale);
+      if (!lastReceipt && sales.length) lastReceipt = buildReceipt(sales[0]);
+      if (!lastReceipt && archivedSales.length) lastReceipt = buildReceipt(archivedSales[0]);
+
+      if (!lastReceipt) {
+        showStatus('No receipt to copy yet.', true);
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(lastReceipt);
+        showStatus('Receipt copied.');
+      } catch (error) {
+        showStatus('Copy not allowed by browser. Use export PNG instead.', true);
+      }
+    }
+
+    function receiptRows(sourceSales, archived = false) {
+      return sourceSales.slice(0, 14).map(sale => {
+        const items = sale.items.map(item => `${item.qty}× ${escapeHTML(item.name)}`).join('<br>');
+        const dateLabel = archived
+          ? new Date(sale.date).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : new Date(sale.date).toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+        return `
+          <tr>
+            <td>${dateLabel}</td>
+            <td>${items}</td>
+            <td>${escapeHTML(sale.paymentMethod)}</td>
+            <td><strong>${peso.format(sale.total)}</strong></td>
+            <td><button class="ghost table-action" onclick="viewReceipt('${sale.id}')">view</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderReceiptTable(title, rows, emptyMessage, note = '') {
+      if (!rows) {
+        return `<div class="history-block"><h3>${title}</h3><div class="empty">${emptyMessage}</div></div>`;
+      }
+
+      return `
+        <div class="history-block">
+          <h3>${title}</h3>
+          ${note ? `<p class="shift-note">${note}</p>` : ''}
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>time</th>
+                  <th>items</th>
+                  <th>payment</th>
+                  <th>total</th>
+                  <th>receipt</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHistory() {
+      const target = document.getElementById('historyTable');
+      if (!selectedReceiptSale) renderReceiptPreview(sales[0] || null);
+
+      const exportStatus = sales.length
+        ? (shiftMeta.csvExported
+          ? `CSV exported${shiftMeta.lastExportAt ? ' at ' + new Date(shiftMeta.lastExportAt).toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' }) : ''}. You may close the shift.`
+          : 'Export the CSV before closing the shift.')
+        : 'Active shift is clear.';
+
+      const activeRows = receiptRows(sales, false);
+      const archiveRows = receiptRows(archivedSales, true);
+
+      target.innerHTML = `
+        ${renderReceiptTable('active shift', activeRows, 'No active shift sales yet. Your next checkout will appear here.', exportStatus)}
+        ${renderReceiptTable('receipt archive', archiveRows, 'No archived receipts yet. Closing a shift will move receipts here.', 'Archived receipts stay available even after the active shift is reset.')}
+      `;
+
+      updateStats();
+    }
+
+    function viewReceipt(receiptId) {
+      const sale = [...sales, ...archivedSales].find(item => item.id === receiptId);
+      if (!sale) {
+        showStatus('Receipt not found.', true);
+        return;
+      }
+
+      selectedReceiptSale = sale;
+      lastReceipt = buildReceipt(sale);
+      renderReceiptPreview(sale);
+      showStatus('Receipt loaded.');
+      if (window.innerWidth < 1020) window.location.hash = 'receiptPanel';
+    }
+
+    function exportCSV() {
+      if (!sales.length) {
+        showStatus('No sales to export yet.', true);
+        return;
+      }
+
+      const rows = [[
+        'sale_id',
+        'date',
+        'items',
+        'subtotal',
+        'discount',
+        'discount_type',
+        'total',
+        'payment_method',
+        'cash_received',
+        'change',
+        'notes'
+      ]];
+
+      sales.forEach(sale => {
+        rows.push([
+          sale.id,
+          sale.date,
+          sale.items.map(item => `${item.qty}x ${item.name}`).join('; '),
+          sale.subtotal,
+          sale.discount,
+          sale.discountType || '',
+          sale.total,
+          sale.paymentMethod,
+          sale.cashReceived,
+          sale.change,
+          sale.notes || ''
+        ]);
+      });
+
+      const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `passthecrumb-sales-${localDateKey()}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      shiftMeta.csvExported = true;
+      shiftMeta.lastExportAt = new Date().toISOString();
+      saveAll();
+      renderHistory();
+      showStatus('CSV exported. You may now close the shift.');
+    }
+
+    function closeShift() {
+      if (!sales.length) {
+        showStatus('No active sales to close.', true);
+        return;
+      }
+
+      const exportedMessage = shiftMeta.csvExported
+        ? 'Close this shift and archive the receipts? Active sales history will reset.'
+        : 'CSV has not been exported after the latest sale. Close this shift anyway?';
+
+      if (!window.confirm(exportedMessage)) return;
+
+      const closedAt = new Date().toISOString();
+      const shiftId = `SHIFT-${Date.now()}`;
+      const archivedBatch = sales.map(sale => ({
+        ...sale,
+        shiftId,
+        archivedAt: closedAt
+      }));
+
+      archivedSales = [...archivedBatch, ...archivedSales].slice(0, 500);
+      sales = [];
+      cart = [];
+      selectedReceiptSale = null;
+      lastReceipt = '';
+      shiftMeta = { csvExported: false, lastExportAt: null };
+
+      document.getElementById('discountType').value = 'none';
+      document.getElementById('discountInput').value = 0;
+      document.getElementById('cashInput').value = 0;
+      document.getElementById('notesInput').value = '';
+
+      saveAll();
+      renderCart();
+      renderHistory();
+      renderReceiptPreview(null);
+      updateStats();
+      showStatus('Shift closed. Receipts were saved in the archive.');
+    }
+
+    function wrapCanvasText(ctx, text, maxWidth) {
+      const words = String(text).split(' ');
+      const lines = [];
+      let line = '';
+
+      words.forEach(word => {
+        const testLine = line ? `${line} ${word}` : word;
+        if (ctx.measureText(testLine).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = testLine;
+        }
+      });
+
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    function drawRoundedRect(ctx, x, y, width, height, radius) {
+      if (ctx.roundRect) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, width, height, radius);
+        ctx.fill();
+        return;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function exportReceiptPNG() {
+      const sale = selectedReceiptSale || sales[0] || archivedSales[0];
+      if (!sale) {
+        showStatus('No receipt to export yet.', true);
+        return;
+      }
+
+      const previewCanvas = document.createElement('canvas');
+      const previewCtx = previewCanvas.getContext('2d');
+      previewCtx.font = '14px Menlo, Monaco, Consolas, monospace';
+
+      const logicalWidth = 430;
+      const padding = 28;
+      const contentWidth = logicalWidth - padding * 2;
+      const nameWidth = contentWidth - 92;
+      const itemLineHeight = 18;
+
+      let itemHeight = 0;
+      const itemBlocks = sale.items.map(item => {
+        const nameLines = wrapCanvasText(previewCtx, item.name, nameWidth);
+        const height = nameLines.length * itemLineHeight + 30;
+        itemHeight += height;
+        return { item, nameLines, height };
+      });
+
+      const notesLines = sale.notes ? wrapCanvasText(previewCtx, `notes: ${sale.notes}`, contentWidth) : [];
+      const logicalHeight = Math.max(680, 390 + itemHeight + notesLines.length * itemLineHeight);
+      const scale = 2;
+      const canvas = document.createElement('canvas');
+      canvas.width = logicalWidth * scale;
+      canvas.height = logicalHeight * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(scale, scale);
+
+      ctx.fillStyle = '#F7F1EA';
+      ctx.fillRect(0, 0, logicalWidth, logicalHeight);
+
+      ctx.fillStyle = '#FFFDFC';
+      drawRoundedRect(ctx, 16, 16, logicalWidth - 32, logicalHeight - 32, 26);
+
+      ctx.fillStyle = '#E9D8C8';
+      for (let x = 36; x < logicalWidth - 36; x += 14) {
+        ctx.beginPath();
+        ctx.arc(x, 16, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x, logicalHeight - 16, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function text(value, x, y, size = 14, weight = '400', color = '#2F241F', align = 'left', family = 'Menlo, Monaco, Consolas, monospace') {
+        ctx.font = `${weight} ${size}px ${family}`;
+        ctx.fillStyle = color;
+        ctx.textAlign = align;
+        ctx.textBaseline = 'top';
+        ctx.fillText(String(value), x, y);
+      }
+
+      function line(y) {
+        ctx.strokeStyle = '#CDB7A8';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(logicalWidth - padding, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      let y = 42;
+      text('passthecrumb', logicalWidth / 2, y, 30, '900', '#7A4128', 'center', 'Inter, Arial, sans-serif');
+      y += 34;
+      text('good taste goes around', logicalWidth / 2, y, 12, '700', '#7B675D', 'center', 'Inter, Arial, sans-serif');
+      y += 31;
+      line(y);
+      y += 18;
+
+      text('receipt', padding, y, 13, '400', '#7B675D');
+      text(sale.id, logicalWidth - padding, y, 13, '700', '#2F241F', 'right');
+      y += 21;
+      text('date', padding, y, 13, '400', '#7B675D');
+      text(new Date(sale.date).toLocaleString('en-PH'), logicalWidth - padding, y, 13, '700', '#2F241F', 'right');
+      y += 21;
+      text('type', padding, y, 13, '400', '#7B675D');
+      text('sales receipt', logicalWidth - padding, y, 13, '700', '#2F241F', 'right');
+      y += 25;
+      line(y);
+      y += 17;
+
+      itemBlocks.forEach(block => {
+        block.nameLines.forEach((nameLine, index) => {
+          text(nameLine, padding, y, 14, index === 0 ? '700' : '400', '#2F241F');
+          y += itemLineHeight;
+        });
+        text(`${block.item.qty} × ${peso.format(block.item.price)}`, padding, y, 13, '400', '#7B675D');
+        text(peso.format(Number(block.item.qty || 0) * Number(block.item.price || 0)), logicalWidth - padding, y, 13, '700', '#2F241F', 'right');
+        y += 24;
+      });
+
+      line(y);
+      y += 17;
+
+      const discountText = sale.discountType ? `discount · ${sale.discountType}` : 'discount';
+      const rows = [
+        ['subtotal', peso.format(sale.subtotal)],
+        [discountText, `-${peso.format(sale.discount)}`],
+        ['payment', sale.paymentMethod]
+      ];
+
+      if (sale.paymentMethod === 'Cash') {
+        rows.push(['cash received', peso.format(sale.cashReceived)]);
+        rows.push(['change', peso.format(sale.change)]);
+      }
+
+      rows.forEach(row => {
+        const labelLines = wrapCanvasText(previewCtx, row[0], 220);
+        labelLines.forEach((labelLine, index) => {
+          text(labelLine, padding, y, 13, '400', '#7B675D');
+          if (index === 0) text(row[1], logicalWidth - padding, y, 13, '700', '#2F241F', 'right');
+          y += itemLineHeight;
+        });
+        y += 3;
+      });
+
+      if (notesLines.length) {
+        notesLines.forEach(noteLine => {
+          text(noteLine, padding, y, 12, '400', '#7B675D');
+          y += itemLineHeight;
+        });
+        y += 4;
+      }
+
+      ctx.strokeStyle = '#E9D8C8';
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(logicalWidth - padding, y);
+      ctx.stroke();
+      y += 18;
+
+      text('total', padding, y, 22, '900', '#7A4128', 'left', 'Inter, Arial, sans-serif');
+      text(peso.format(sale.total), logicalWidth - padding, y, 22, '900', '#7A4128', 'right', 'Inter, Arial, sans-serif');
+      y += 42;
+      line(y);
+      y += 18;
+      text('thank you for sharing good taste', logicalWidth / 2, y, 13, '700', '#7B675D', 'center', 'Inter, Arial, sans-serif');
+      y += 19;
+      text('@passthecrumb', logicalWidth / 2, y, 12, '700', '#A35C3A', 'center', 'Inter, Arial, sans-serif');
+
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `${sale.id}-passthecrumb-receipt.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        setTimeout(() => window.open(dataUrl, '_blank'), 250);
+      }
+
+      showStatus('Receipt PNG exported.');
+    }
+
+    function showProductModal() {
+      document.getElementById('productModal').classList.add('open');
+      setTimeout(() => document.getElementById('newName').focus(), 40);
+    }
+
+    function hideProductModal() {
+      document.getElementById('productModal').classList.remove('open');
+    }
+
+    function addProduct() {
+      const name = document.getElementById('newName').value.trim().toLowerCase();
+      const category = document.getElementById('newCategory').value.trim().toLowerCase();
+      const price = Number(document.getElementById('newPrice').value || 0);
+      const stock = Number(document.getElementById('newStock').value || 0);
+      const description = document.getElementById('newDescription').value.trim();
+
+      if (!name || !category || price <= 0) {
+        showStatus('Product name, category, and price are required.', true);
+        return;
+      }
+
+      products.push({
+        id: makeId(),
+        name,
+        category,
+        price,
+        stock,
+        startingStock: stock || 1,
+        description
+      });
+
+      ['newName', 'newCategory', 'newPrice', 'newStock', 'newDescription'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+
+      hideProductModal();
+      saveAll();
+      renderCategories();
+      renderProducts();
+      updateStats();
+      showStatus('Product added.');
+    }
+
+    function showStatus(message, isError = false) {
+      const box = document.getElementById('statusMsg');
+      box.textContent = message;
+      box.style.color = isError ? 'var(--bad)' : 'var(--good)';
+      window.clearTimeout(showStatus.timer);
+      showStatus.timer = window.setTimeout(() => {
+        box.textContent = '';
+      }, 2600);
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>'"]/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[char]));
+    }
+
+    function escapeAttribute(value) {
+      return String(value).replace(/'/g, '\\&#39;').replace(/"/g, '&quot;');
+    }
+
+    document.getElementById('productModal').addEventListener('click', event => {
+      if (event.target.id === 'productModal') hideProductModal();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') hideProductModal();
+    });
+
+    init();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .catch(error => console.log('Service worker registration failed:', error));
+      });
+    }
+  </script>
+</body>
+</html>
